@@ -1,5 +1,6 @@
 package com.betterhackernews
 
+import com.betterhackernews.pages.HomePage
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -20,8 +21,6 @@ suspend inline fun ApplicationCall.respondCss(builder: CssBuilder.() -> Unit) {
 fun Application.module() {
     //configureSecurity()
     configureHTTP()
-    //configureSerialization()
-    //configureTemplating()
     //configureDatabases()
-    configureRouting()
+    HomePage()
 }

@@ -1,17 +1,17 @@
-package com.betterhackernews.plugins
+package com.betterhackernews.pages
 
 import com.betterhackernews.HackerNewsWrapper
 import com.betterhackernews.respondCss
 import io.ktor.http.*
 import io.ktor.server.routing.*
-import io.ktor.server.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
 import kotlinx.css.*
 import kotlinx.html.*
+import java.net.URL
 import java.time.Instant
 
-fun Application.configureRouting() {
+fun Application.HomePage() {
     val hackerNewsWrapper = HackerNewsWrapper()
     routing {
         get("/") {
@@ -49,17 +49,23 @@ fun Application.configureRouting() {
                         val currentTimeStamp = Instant.now().epochSecond
                         bestStories.forEachIndexed { idx, story ->
                             div("card m-5") {
-                               // style = "width: 18rem;"
                                 div("card-body") {
                                     div {
-                                        a(href = story.url) {
-                                            h4("card-title mb-1") {
-                                                +"${idx + 1}: ${story.title!!}"
+                                        div {
+                                            a(href = story.url) {
+                                                val extractedLink =
+                                                    if (!story.url.isNullOrEmpty()) URL(story.url).host.removePrefix("www.") else ""
+                                                h4("d-inline-block card-title mb-1") {
+                                                    +"${idx + 1}: ${story.title!!}"
+                                                }
+                                                h6(classes = "d-inline-block title-url") {
+                                                    +"($extractedLink)"
+                                                }
                                             }
                                         }
                                         div("blockquote-footer") {
                                             val user = story.by ?: "unknown"
-                                            +"$user"
+                                            +user
                                         }
                                         div("meta-data mt-2") {
                                             p {
@@ -74,18 +80,31 @@ fun Application.configureRouting() {
                                         }
                                     }
 
-                                    div("card-footer text-body-secondary") {
+                                    div("card-footer text-body-secondary mb-2") {
                                         val timestampDif = (currentTimeStamp - story.time!!) / 3600
                                         +"$timestampDif hours ago"
                                     }
-
+//                                    if (!story.text.isNullOrBlank()){
+//                                        p {
+//                                            +story.text
+//                                        }
+//                                    }
+                                    div(classes="text-center") {
+                                        h6 { +"Top Comments "}
+                                    }
                                     story.topComments?.forEachIndexed { idx, comment ->
-                                        div("m-2") {
+                                        div("m-2 comments") {
                                             unsafe {
                                                 val text = comment.text?.replace(Regex("<.*?>"), "") ?: ""
                                                 +"${idx+1}: $text"
                                             }
                                             hr {  }
+                                        }
+                                    }
+                                    val url = "https://news.ycombinator.com/item?id=${story.id}"
+                                    div(classes="d-flex align-items-center justify-content-center") {
+                                        a(href = url) {
+                                            i(classes = "fa-brands fa-hacker-news") {}
                                         }
                                     }
                                 }
@@ -102,25 +121,11 @@ fun Application.configureRouting() {
                 }
             }
 
-//        get("/get/{id}") {
-//            call.parameters["id"]?.let {
-//                call.respondText(hackerNewsWrapper.getItem(it.toInt()).toString())
-//            }
-//        }
-
-        // Static plugin. Try to access `/static/index.html`
-        static("/static") {
-            resources("static")
-        }
-
         get("/styles.css") {
             call.respondCss {
                 body {
                     backgroundColor = rgb(246, 246, 239)
                 }
-//                rule("p.") {
-//                    display = Display.inline
-//                }
                 rule("nav") {
                     backgroundColor = rgb(255,102,0)
                     color = Color.white
@@ -128,6 +133,15 @@ fun Application.configureRouting() {
                 rule(".meta-data") {
                     display = Display.flex
                     flexDirection = FlexDirection.row
+                }
+                rule("a") {
+                    color = Color.inherit
+                }
+                rule(".title-url") {
+                    color = rgb(139,139,139)
+                }
+                rule(".comments") {
+                    fontSize = LinearDimension.auto
                 }
             }
         }

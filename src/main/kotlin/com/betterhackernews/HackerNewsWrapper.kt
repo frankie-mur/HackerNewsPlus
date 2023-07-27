@@ -58,12 +58,4 @@ data class HackerNewsWrapper(val url: String? = null) {
             }.awaitAll()
         }
 
-//    private suspend fun getComment(id: Int) =
-//        httpClient.get("/v0/topstories.json").let {
-//            val listOfStoryIds = it.body<List<Int>>().take(25)
-//            listOfStoryIds.map {
-//                async { getItem(it) }
-//            }.awaitAll()
-//        }
-
 }
