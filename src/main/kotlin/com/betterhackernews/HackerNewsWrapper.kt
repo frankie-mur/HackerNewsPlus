@@ -27,7 +27,10 @@ data class HackerNewsWrapper(val url: String? = null) {
         }
         expectSuccess = true
     }
-
+    /*
+    Gets an item based on it if item is a type story
+    then gets top 3 comments of story and adds
+     */
     private suspend fun getItem(id: Int): Item {
         val item = httpClient.get("/v0/item/$id.json").body<Item>()
         return when (item.type) {
@@ -39,7 +42,10 @@ data class HackerNewsWrapper(val url: String? = null) {
             else ->  item
         }
     }
-
+    /*
+    Gets top 25 stories id's then makes an async call
+    to get each story as an item
+    */
     suspend fun topStories(): List<Item> =
         coroutineScope {
             httpClient.get("/v0/topstories.json").let {
